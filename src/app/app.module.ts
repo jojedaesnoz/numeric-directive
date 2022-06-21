@@ -5,11 +5,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { HelloComponent } from './hello.component';
 import { NumericDirective } from './directives/numeric.directive';
+import { NumOnlyDirective } from './directives/num-only.directive';
 
 @NgModule({
   imports: [BrowserModule, FormsModule, ReactiveFormsModule],
-  declarations: [AppComponent, HelloComponent, NumericDirective],
+  declarations: [
+    AppComponent,
+    HelloComponent,
+    NumericDirective,
+    NumOnlyDirective,
+  ],
   bootstrap: [AppComponent],
-  exports: [NumericDirective],
+  exports: [NumericDirective, NumOnlyDirective],
 })
 export class AppModule {}

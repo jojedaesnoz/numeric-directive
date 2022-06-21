@@ -14,7 +14,7 @@ registerLocaleData(localeEs, 'es-ES', localeEsExtra);
 export class AppComponent implements OnInit {
   name = 'Angular ' + VERSION.major;
   form: FormGroup;
-  clasico = new FormControl(0);
+  clasico = new FormControl(1.00009);
   negativo = new FormControl(0);
   entero = new FormControl(0);
 
