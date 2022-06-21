@@ -13,49 +13,23 @@ import {
 import { formatNumber } from '@angular/common';
 import { NgControl } from '@angular/forms';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { NumOnlyDirective } from './num-only.directive';
 
 @Directive({
-  selector: '[appNumeric]',
+  selector: '[appNumberFormat]',
 })
-export class NumericDirective {
+export class NumberFormatDirective extends NumOnlyDirective {
+  // ________ CUARENTENA __________________
   @Output() onCambio: EventEmitter<any> = new EventEmitter();
-  destroy$: Subject<void> = new Subject<void>();
   valueChange$: BehaviorSubject<number> = new BehaviorSubject(null);
+
+  // _________ FIN CUARENTENA _____________
+
   private readonly separator = ',';
   private readonly numOnlyRegex = new RegExp(
     '[0-9.' + this.separator + ']',
     'g'
   );
-  private readonly actionKeys = ['a', 'c', 'v', 'x', 'z'];
-  private readonly navigationKeys = [
-    'Backspace',
-    'Delete',
-    'Tab',
-    'Escape',
-    'Enter',
-    'Home',
-    'End',
-    'ArrowLeft',
-    'ArrowRight',
-    'Clear',
-    'Copy',
-    'Paste',
-    '-',
-  ];
-  private readonly functionKeys = [
-    'F1',
-    'F2',
-    'F3',
-    'F4',
-    'F5',
-    'F6',
-    'F7',
-    'F8',
-    'F9',
-    'F1F0',
-    'F1F1',
-    'F12',
-  ];
 
   @Input('decimals') decimals = 2;
   @Input('locale') locale = 'es-ES';
@@ -64,14 +38,18 @@ export class NumericDirective {
     this.element.value = this.format(value);
   }
 
-  get separatorPos() {
-    return this.element.value.indexOf(this.separator);
-  }
-
-  get selectionStart() {
-    return this.element.selectionStart;
-  }
-  cssClasses = ['number-input'];
+  /* Valor negativo por defecto: el valor que tendria si introducimos
+  un signo menos con el valor por defecto.
+  Por ejemplo, con 3 decimales: -,000
+  */
+  private readonly defaultNegativeValue =
+    '-' + this.separator + '0'.repeat(this.decimals);
+  /* Valor negativo por defecto expandido: el valor que obtenemos al 
+  formatear el valor negativo por defecto.
+  Por ejemplo, con 3 decimales: -0,000
+  */
+  private readonly defaultExpandedNegativeValue =
+    '-0' + this.separator + '0'.repeat(this.decimals);
 
   readonly element: HTMLInputElement;
   model: NgControl;
@@ -81,12 +59,10 @@ export class NumericDirective {
     @Optional() model: NgControl,
     public renderer: Renderer2
   ) {
-    this.model = model;
-    this.element = elementRef.nativeElement;
+    super(elementRef, model, renderer);
   }
 
   ngOnInit() {
-    this.addCssClasses();
     if (this.model) {
       this.update(this.element.value);
       this.model.valueChanges.subscribe((value) => {
@@ -103,25 +79,10 @@ export class NumericDirective {
     }
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   @HostListener('blur')
   onChange() {
     this.updateAndEmit();
   }
-
-  addCssClasses() {
-    for (let cssClass of this.cssClasses) {
-      this.renderer.addClass(this.element, cssClass);
-    }
-  }
-
-  defaultNegativeValue = '-' + this.separator + '0'.repeat(this.decimals);
-  defaultExpandedNegativeValue =
-    '-0' + this.separator + '0'.repeat(this.decimals);
 
   update(value?: any): number {
     console.log('update', value);
@@ -193,10 +154,7 @@ export class NumericDirective {
 
   @HostListener('keydown', ['$event'])
   onKeydown(event: KeyboardEvent) {
-    console.log(event.key);
-    if (!this.isAllowedInput(event)) {
-      event.preventDefault();
-    }
+    super.onKeydown(event);
     if (this.isSeparatorKey(event.key) && this.decimals > 0) {
       this.insertSeparator();
       this.updateAndEmit();
@@ -303,6 +261,14 @@ export class NumericDirective {
     this.setPosition(this.selectionStart + 1);
   }
 
+  get separatorPos() {
+    return this.element.value.indexOf(this.separator);
+  }
+
+  get selectionStart() {
+    return this.element.selectionStart;
+  }
+
   truncateToDecimals(num, dec = 2): number {
     const calcDec = Math.pow(10, dec);
     return Math.trunc(num * calcDec) / calcDec;
@@ -336,37 +302,8 @@ export class NumericDirective {
     return this.isSeparatorKey(this.charAt(this.selectionStart + shift));
   }
 
-  private isAllowedInput(event) {
-    return (
-      this.isNumberKey(event) ||
-      this.isNavigationKey(event) ||
-      this.isActionKey(event) ||
-      this.isFunctionKey(event) ||
-      event.key == '-'
-    );
-  }
-
-  private isFunctionKey(event: any): boolean {
-    return this.functionKeys.indexOf(event.key) > -1;
-  }
-
   private isSeparatorKey(value: string) {
     return value == this.separator || value == '.';
-  }
-
-  private isActionKey(event: any): boolean {
-    return (
-      this.actionKeys.indexOf(event.key) > -1 &&
-      (event.ctrlKey || event.metaKey)
-    );
-  }
-
-  private isNavigationKey(event: any): boolean {
-    return this.navigationKeys.indexOf(event.key) > -1;
-  }
-
-  private isNumberKey(event: any) {
-    return !isNaN(Number(event.key));
   }
 
   private cleanInput(value: string): any {

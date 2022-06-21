@@ -26,7 +26,6 @@ export class NumOnlyDirective {
     'Clear',
     'Copy',
     'Paste',
-    '-',
   ];
   private readonly functionKeys = [
     'F1',
@@ -75,7 +74,12 @@ export class NumOnlyDirective {
 
   @HostListener('keydown', ['$event'])
   onKeydown(event: KeyboardEvent) {
+    // Si la tecla no esta entre las permitidas, corta el evento
     if (!this.isAllowedInput(event)) {
+      event.preventDefault();
+    }
+    // No permite poner dos signos menos
+    if (event.key == '-' && this.element.value.charAt(0) == '-') {
       event.preventDefault();
     }
   }

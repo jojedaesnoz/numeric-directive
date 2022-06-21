@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
   clasico = new FormControl(1.00009);
   negativo = new FormControl(0);
   entero = new FormControl(0);
+  completo = new FormControl(0);
 
   constructor(public fb: FormBuilder) {}
 

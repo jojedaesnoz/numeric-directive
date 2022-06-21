@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { HelloComponent } from './hello.component';
 import { NumericDirective } from './directives/numeric.directive';
 import { NumOnlyDirective } from './directives/num-only.directive';
+import { NumberFormatDirective } from './directives/number-format.directive';
 
 @NgModule({
   imports: [BrowserModule, FormsModule, ReactiveFormsModule],
@@ -14,8 +15,9 @@ import { NumOnlyDirective } from './directives/num-only.directive';
     HelloComponent,
     NumericDirective,
     NumOnlyDirective,
+    NumberFormatDirective,
   ],
   bootstrap: [AppComponent],
-  exports: [NumericDirective, NumOnlyDirective],
+  exports: [NumericDirective, NumOnlyDirective, NumberFormatDirective],
 })
 export class AppModule {}
